@@ -1,0 +1,14 @@
+{
+  "name": "Random-Chinese-Number-Generator",
+  "version": "1.0.0",
+  "description": "A mini program that is used to generate random number or money in Chinese",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Hui Li",
+  "license": "ISC",
+  "dependencies": {
+    "nzh": "^1.0.4"
+  }
+}
