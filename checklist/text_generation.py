@@ -128,8 +128,8 @@ class TextGenerator(object):
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             # self.tokenizer = BertTokenizer.from_pretrained('bert-base-chinese')
             # self.model = BertForMaskedLM.from_pretrained('bert-base-chinese')
-            self.tokenizer = RobertaTokenizer.from_pretrained("/work/QA_task/roberta-1.1/BERTCN/bertcn-pytorch-r1.1/checklist/checklist-master/checklist/data/model")
-            self.model = RobertaForMaskedLM.from_pretrained("/work/QA_task/roberta-1.1/BERTCN/bertcn-pytorch-r1.1/checklist/checklist-master/checklist/data/model")
+            self.tokenizer = BertTokenizer.from_pretrained("/work/QA_task/roberta-1.1/BERTCN/bertcn-pytorch-r1.1/checklist/checklist-master/checklist/data/model")
+            self.model = BertForMaskedLM.from_pretrained("/work/QA_task/roberta-1.1/BERTCN/bertcn-pytorch-r1.1/checklist/checklist-master/checklist/data/model")
             self.model.to(self.device)
             self.model.eval()
             print("model.init")
@@ -225,8 +225,8 @@ class TextGenerator(object):
                 prev = int(to_pred[i][masked[size] - 1])
                 forbid = False
                 # allow tokens that don't start with space if previous is not alphanumeric
-                if not self.allow_word_pieces and prev not in self.special_chars:
-                    forbid = True
+                # if not self.allow_word_pieces and prev not in self.special_chars:
+                #     forbid = True
                     # print('Forbid Prev, current', prev,  tokenizer.decode(to_pred[i][masked[size] - 1:masked[size]+1]))
                 if candidates is not None:
                     cands_to_use = cands_with_space if forbid else cands
@@ -320,7 +320,7 @@ class TextGenerator(object):
         for text in texts:
             orig_ret += [text.replace(word, x) for x in options]
         print(orig_ret)
-        return orig_ret
+        return options
         # return self.filter_options(texts, word, options, threshold)
 
     def filter_options(self, texts, word, options, threshold=5):

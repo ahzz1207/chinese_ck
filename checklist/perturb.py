@@ -53,7 +53,7 @@ def load_data():
     neg2pos = json.load(open(os.path.join(cur_folder, 'data', 'neg2pos.json')))
     contrac2full = json.load(open(os.path.join(cur_folder, 'data', 'contrac2full.json')))
     full2contrac = json.load(open(os.path.join(cur_folder, 'data', 'full2contrac.json')))
-    date = json.load(open(os.path.join(cur_folder, 'data', 'date.json')))
+    date = json.load(open(os.path.join(cur_folder, 'data', 'lexicons', 'date.json')))
     data = {
         'name': names,
         'contrac2full': contrac2full,
@@ -66,6 +66,7 @@ def load_data():
     data.update(basic)
     data = dict(data, **intent)
     return data
+
 
 def process_ret(ret, ret_m=None, meta=False, n=10):
     if ret:
@@ -245,6 +246,39 @@ class Perturb:
             string[swap] = string[swap + 1]
             string[swap + 1] = tmp
         return ''.join(string)
+
+    @staticmethod
+    def remove_things(string, types):
+        def remove_number(string):
+            par = r"\d+\.?\d*|[一,二,三,四,五,六,七,八,九,十,千,百,万]+"
+            ps = re.findall(par, string)
+            for p in ps:
+                string = string.replace(p, "")
+            return string
+        def remove_digit(string):
+            par = r"([1-9]\d*\.?\d*)|(0\.\d*[1-9])"
+            ps = re.findall(par, string)
+            for p in ps:
+                string = string.replace(p[0], "")
+            return string
+        def remove_puncuation(string):
+            par = r"[\s+\.\!\/_,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）“”]"
+            ps = re.findall(par, string)
+            for p in ps:
+                string = string.replace(p, "")
+            return string
+        def remove_date(string):
+            par = r"[一,二,三,四,五,六,七,八,九,十,去,上]+[日,天,周,月,年]+[前,后]?|[1-9]+[日,天,周,月,年]+[前,后]?"
+            ps = re.findall(par, string)
+            for p in ps:
+                string = string.replace(p, "")
+            return string
+        
+        fn = {'number':remove_number, 
+              'digit':remove_digit,
+              'puncuation':remove_puncuation,
+              'date':remove_date}
+        return fn[types](string)        
 
     @staticmethod
     def remove_negation(doc):
@@ -565,16 +599,18 @@ class Perturb:
 
     @staticmethod
     def change_entity(doc, entity, func, meta=False, seed=None, n=10):
-
+        ret = []
+        ret_m = []
+        
         options = Perturb.data[func]
         if seed is not None:
             np.random.seed(seed)
         
-        sub_re = re.compile(r'%s' % entity)
+        # sub_re = re.compile(r'%s' % entity)
         to_use = np.random.choice(options, n)
         ret.extend([doc.text.replace(entity, n) for n in to_use])
         # ret.extend([sub_re.sub(n, doc.text) for n in to_use])
-        ret_m.extend([(x, n) for n in to_use])   
+        ret_m.extend([(entity, n) for n in to_use])   
         return process_ret(ret, ret_m=ret_m, n=n, meta=meta)  
     
     

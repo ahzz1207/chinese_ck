@@ -51,10 +51,12 @@ class TestSummarizer(widgets.DOMWidget):
         """
         Event handler. Users trigger python functions through the frontend interaction.
         """
+        # 在前端点击fillter按钮触发事件
         if content.get('event', '') == 'apply_filter':
             filter_tags = content.get("filter_tags", [])
             is_fail_case = content.get("filter_fail_case", [])
             self.search(filter_tags, is_fail_case)
+        # 在前端点击fetch触发事件
         elif content.get('event', '') == 'fetch_example':
             self.fetch_example()
 
@@ -90,6 +92,7 @@ class TestSummarizer(widgets.DOMWidget):
     def is_satisfy_filter(self, testcase, 
         filter_tags: typing.List[str], 
         is_fail_case: bool) -> bool:
+        # 这段代码用于判断instance的结果是否满足pass or fail
         testcase_tags = testcase["tags"]
         texts = []
         for e in testcase["examples"]:

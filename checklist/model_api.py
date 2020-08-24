@@ -120,7 +120,7 @@ class IntentProcessor():
         return examples
 
 
-class circle_model():
+class test_model():
 
     def __init__(self):
         # device config
@@ -229,6 +229,6 @@ class circle_model():
     
     
 def main():
-    model = circle_model()
+    model = test_model()
     print(model.eval(['做个测试']))
 

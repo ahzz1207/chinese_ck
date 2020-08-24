@@ -267,7 +267,7 @@ class Editor(object):
         folder = os.path.abspath(os.path.join(cur_folder, "data", 'lexicons'))
         for f in os.listdir(folder):
             self.lexicons.update(json.load(open(os.path.join(folder, f))))
-        self.data['names'] = json.load(open(os.path.join(cur_folder, 'data', 'names.json')))
+        self.data['names'] = json.load(open(os.path.join(cur_folder, 'data', 'names_zh2.json')))
         self.data['names'] = {x:set(self.data['names'][x]) for x in self.data['names']}
         make_munch = lambda x: munch.Munch(x) if type(x) == dict else x
         for x in self.lexicons:
