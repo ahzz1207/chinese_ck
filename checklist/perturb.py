@@ -192,7 +192,7 @@ class Perturb:
         return ret
 
     @staticmethod
-    def trans_num(sentence, mode):
+    def trans_num(sentence, mode='number'):
         """Perturbation function which adds / removes punctuations
         
         Parameters
@@ -210,6 +210,7 @@ class Perturb:
         """
         rex = re.compile(r"([1-9]\d*\.?\d*)|(0\.\d*[1-9])")
         ret = []
+        print(sentence)
         numbers = rex.findall(sentence)
         cur_folder = os.path.dirname(__file__)
         js = execjs.compile(open(os.path.join(cur_folder, 'data', 'Generator', 'index.js')).read())
@@ -279,6 +280,24 @@ class Perturb:
               'puncuation':remove_puncuation,
               'date':remove_date}
         return fn[types](string)        
+
+    @staticmethod
+    def negation(sentence, **kwargs):
+        """Perturbation functions, add_negation and expands negation if present
+
+        Parameters
+        ----------
+        sentence : str
+            input
+
+        Returns
+        -------
+        list
+            List of strings with negation removed or negation add, or []
+
+        """
+        negation = [Perturb.add_negation(sentence), Perturb.remove_negation(sentence)]
+        return [t for t in negation if t != sentence]
 
     @staticmethod
     def remove_negation(doc):
@@ -395,12 +414,11 @@ class Perturb:
         def expand_match(contraction):
             match = contraction.group(0)
             print(match)
-            # expanded_contraction = contraction_map.get(match, contraction_map.get(match.lower()))
             expanded_contraction = contraction_map.get(match, contraction_map.get(match)) 
-            # expanded_contraction = first_char + expanded_contraction[1:]
             return random.choice(expanded_contraction)
         contraction = contraction_pattern.search(sentence)
         if contraction:
+            print(contraction)
             return contraction_pattern.sub(expand_match(contraction), sentence)
         
     @staticmethod
@@ -444,10 +462,7 @@ class Perturb:
             )
         def cont(possible):
             match = possible.group(1)
-            first_char = match
-            # expanded_contraction = reverse_contraction_map.get(match, reverse_contraction_map.get(match.lower()))
             expanded_contraction = reverse_contraction_map.get(match, reverse_contraction_map.get(match))
-            # expanded_contraction = first_char + expanded_contraction[1:] + ' '
             return random.choice(expanded_contraction)
         possible = reverse_contraction_pattern.search(sentence)
         if possible:
@@ -486,24 +501,15 @@ class Perturb:
         ret = []
         ret_m = []
         for x in ents:
-            sex = None
-            if x in Perturb.data['name_set']['female']:
+            sex = 'male'
+            if x in Perturb.data['name']['female']:
                 sex = 'female'
-            if x in Perturb.data['name_set']['male']:
+            if x in Perturb.data['name']['male']:
                 sex = 'male'
             
             names = Perturb.data['name'][sex][:90+n]
             to_use = np.random.choice(names, n)
             
-            # if not first_only:
-            #     f = x
-            #     if len(x.split()) > 1:
-            #         last = Perturb.data['name']['last'][:90+n]
-            #         last = np.random.choice(last, n)
-            #         to_use = ['%s %s' % (x, y) for x, y in zip(names, last)]
-            #         if last_only:
-            #             to_use = last
-            #             f = x.split()[1]
             for y in to_use:
                 # ret.append(re.sub(r'\b%s\b' % re.escape(f), y, doc.text))
                 ret.append(doc.text.replace(x, y))
@@ -511,7 +517,7 @@ class Perturb:
         return process_ret(ret, ret_m=ret_m, n=n, meta=meta)
 
     @staticmethod
-    def change_city(doc, meta=False, seed=None, n=10):
+    def change_location(doc, meta=False, seed=None, n=10):
         """Change city and country names
 
         Parameters
@@ -534,7 +540,6 @@ class Perturb:
         """
         if seed is not None:
             np.random.seed(seed)
-        print(doc.ents[0], doc.ents[0].text, doc.ents[0][0].ent_type_)
         ents = [x.text for x in doc.ents if np.all([a.ent_type_ == 'GPE' for a in x])]
         print(ents)
         ret = []
@@ -545,7 +550,7 @@ class Perturb:
             elif x in Perturb.data['country']:
                 names = Perturb.data['country']
             else:
-                continue
+                names = Perturb.data['locate']
             sub_re = re.compile(r'%s' % x)
             to_use = np.random.choice(names, n)
             ret.extend([doc.text.replace(x, n) for n in to_use])

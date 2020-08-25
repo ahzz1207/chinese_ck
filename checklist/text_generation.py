@@ -44,7 +44,6 @@ class HttpSession(object):
 
 
 def get_most_sim(word, http):
-    print(word)
     http_one = http.request(method='post', url=r'http://10.128.2.41:9527/sim',
                             data={"word": [word], "n": ['10']})
 
@@ -303,24 +302,25 @@ class TextGenerator(object):
         return self.filter_options(texts, words[0], options, threshold)
     
     def antonyms(self, texts, word, threshold=5, pos=None, **kwargs):
-        options = self.antonyms_map[word]
+        options = self.antonyms_map.get(word, [])
         orig_ret = []
         for text in texts:
             orig_ret += [text.replace(word, x) for x in options]
-        return orig_ret
+        return orig_ret, options
         # print(options)
         # return self.filter_options(texts, word, options, threshold)
     
     def synonyms(self, texts, word, threshold=5, pos=None, **kwargs):
         # options = all_possible_synonyms(word, pos=pos)
         options, _ = get_most_sim(word, self.http)
+        
         # options = ['热的', '很热']
         print(options)
         orig_ret = []
         for text in texts:
             orig_ret += [text.replace(word, x) for x in options]
         print(orig_ret)
-        return options
+        return orig_ret, options
         # return self.filter_options(texts, word, options, threshold)
 
     def filter_options(self, texts, word, options, threshold=5):

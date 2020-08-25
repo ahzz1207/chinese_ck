@@ -346,8 +346,8 @@ class Editor(object):
         fn = {'antonyms': self.tg.antonyms,
          'synonyms': self.tg.synonyms,
          'related': self.tg.related_words,
-         'hypernyms': self.tg.more_general,
-         'hyponyms': self.tg.more_specific,
+        #  'hypernyms': self.tg.more_general,
+        #  'hyponyms': self.tg.more_specific,
         }[type]
         # return [x[0][0] for x in fn(texts, word, threshold=threshold, pos=pos, depth=depth)]
         return [x for x in fn(texts, word, threshold=threshold, pos=pos, depth=depth)]
@@ -649,7 +649,7 @@ class Editor(object):
             samp = list(set(samp))
             # print(samp)
             if 'beam_size' not in kwargs:
-                kwargs['beam_size'] = 100
+                kwargs['beam_size'] = 10
             # beam_size = kwargs.get('beam_size', 100)
             # kwargs.
             options = self.tg.unmask_multiple(samp, **kwargs)
